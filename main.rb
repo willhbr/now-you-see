@@ -1,4 +1,5 @@
 require 'json'
+require 'sqlite3'
 require 'time'
 require 'csv'
 require 'pry'
@@ -40,11 +41,47 @@ end
 first_date = nil
 
 
-data = data.select { |item| item[:userid] == data[0][:userid] }.select do |item|
-  unless first_date
-    first_date = item[:date].to_date
+last_locations = Hash.new
+
+folded = Array.new
+
+data.each do |item|
+  if last_locations[item[:userid]] != item[:pos]
+    folded.push item
   end
-  first_date == item[:date].to_date
+  last_locations[item[:userid]] = item[:pos]
+end
+
+journies = Array.new
+last_locations = Hash.new
+
+folded.each do |item|
+  last, time = last_locations[item[:userid]]
+  if last == nil
+    last_locations[item[:userid]] = [item[:pos], item[:date]]
+    next
+  end
+
+  journey = {
+    to: item[:pos],
+    from: last,
+    start: time,
+    finish: item[:date]
+  }
+  journies.push(journey)
+end
+
+# CSV.open("/Users/will/Desktop/journies.csv", "wb") do |csv|
+#   journies.each do |j|
+#     csv << [j[:from], j[:to], j[:start], j[:finish]]
+#   end
+# end
+
+db = SQLite3::Database.new "/Users/will/Desktop/journies.db"
+db.execute "CREATE TABLE journies (`to`, `from`, `start`, `finish`);"
+
+journies.each do |j|
+  db.execute "INSERT INTO journies VALUES ('#{j[:from]}', '#{j[:to]}', '#{j[:start]}', '#{j[:finish]}')"
 end
 
 binding.pry
