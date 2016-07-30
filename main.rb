@@ -29,17 +29,7 @@ data = load_and_cache(config['data_path'], config['bin_path']) do |row|
   }
 end
 
-locations = load_and_cache(config['locations_path'], config['loc_bin_path']) do |row|
-  {
-    id: row[0].to_i,
-    title: row[1],
-    lat: row[2].to_f,
-    long: row[3].to_f
-  }
-end
-
-first_date = nil
-
+data = data.sort { |a, b| a[:date] <=> b[:date] }
 
 last_locations = Hash.new
 
@@ -57,7 +47,7 @@ last_locations = Hash.new
 
 folded.each do |item|
   last, time = last_locations[item[:userid]]
-  if last == nil
+  if last == nil || time.day != item[:date].day
     last_locations[item[:userid]] = [item[:pos], item[:date]]
     next
   end
@@ -69,19 +59,9 @@ folded.each do |item|
     finish: item[:date]
   }
   journies.push(journey)
+
+  last_locations[item[:userid]] = [item[:pos], item[:date]]
 end
 
-# CSV.open("/Users/will/Desktop/journies.csv", "wb") do |csv|
-#   journies.each do |j|
-#     csv << [j[:from], j[:to], j[:start], j[:finish]]
-#   end
-# end
+File.write('/Users/will/Desktop/journies.bin', Marshal::dump(journies))
 
-db = SQLite3::Database.new "/Users/will/Desktop/journies.db"
-db.execute "CREATE TABLE journies (`to`, `from`, `start`, `finish`);"
-
-journies.each do |j|
-  db.execute "INSERT INTO journies VALUES ('#{j[:from]}', '#{j[:to]}', '#{j[:start]}', '#{j[:finish]}')"
-end
-
-binding.pry
