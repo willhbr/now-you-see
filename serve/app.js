@@ -1,22 +1,20 @@
+let image = document.getElementById('image');
 var elem = document.getElementById('canvas');
-var two = new Two({ fullscreen: true }).appendTo(elem);
+var two = new Two({ width: image.width, height: image.height }).appendTo(elem);
 
-var circle = two.makeCircle(-70, 0, 50);
-var rect = two.makeRectangle(70, 0, 100, 100);
-circle.fill = '#FF8000';
-circle.stroke = 'orangered';
-rect.fill = 'rgba(0, 200, 255, 0.75)';
-rect.stroke = '#1C75BC';
+let index = 1000;
 
-// Groups can take an array of shapes and/or groups.
-var group = two.makeGroup(circle, rect);
+for(var i in locations) {
+  let loc = locations[i];
+  let y = ((loc.lat + 43.51) / 0.03) * two.height;
+  let x = ((loc.long - 172.57) / 0.02) * two.width;
+  two.makeCircle(x, -y, 2, 2);
+}
 
-// And have translation, rotation, scale like all shapes.
-group.translation.set(two.width / 2, two.height / 2);
-group.rotation = Math.PI;
-group.scale = 0.75;
+console.log(data);
 
-// You can also set the same properties a shape have.
-group.linewidth = 7;
+for(var i in data[index]) {
+  
+}
 
 two.update();
