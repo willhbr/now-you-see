@@ -1,0 +1,6 @@
+{
+  "locations_path": "/Users/will/Downloads/wireless_location_export.csv",
+  "data_path": "/Users/will/Downloads/wireless_data_export.csv",
+  "bin_path": "/Users/will/tmp/wifi_data.bin",
+  "loc_bin_path": "/Users/will/tmp/wifi_locations.bin"
+}
